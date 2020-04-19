@@ -10,7 +10,7 @@
        class="but"
        @click="butStart"
        type="primary"
-       :disabled="disabledStart"
+       :disabled="!disabled"
       >
       开始
       </el-button>
@@ -18,7 +18,7 @@
         class="but"
         @click="butEnd"
         type="primary"
-        :disabled="disabledEnd"
+        :disabled="disabled"
       >
       结束
       </el-button>
@@ -34,36 +34,45 @@ export default {
   }, 
   data () {
     return{
-     atime: NaN,  
+     startTime: NaN, 
+     waitTime: false, 
      bg: '#e6e6e6',
-     disabledEnd: true, 
-     disabledStart: false
+     disabled: true,
     }
   }, 
   methods: {
     butStart () {
-      this.disabledStart = true
-      this.disabledEnd =  false
+      this.disabled =  !this.disabled
+      this.waitTime = true
       setTimeout(() => {
-          this.atime = Number(new Date())
-          const r = Math.floor(Math.random() * 256)
-          const g = Math.floor(Math.random() * 256)
-          const b = Math.floor(Math.random() * 256)
-          this.bg = `rgb(${r},${g},${b})`
-        },Math.random() * 1000 + 1000)
-      
+          if(this.waitTime){
+            this.startTime = Number(new Date())
+            const r = Math.floor(Math.random() * 256)
+            const g = Math.floor(Math.random() * 256)
+            const b = Math.floor(Math.random() * 256)
+            this.bg = `rgb(${r},${g},${b})`
+          }
+          }, Math.random() * 1000 + 1000)
     }, 
     butEnd () {
-      if(this.bg === '#e6e6e6'){
-        this.$alert(
-          '你点早了', '大熊帝', {confirmButtonText: '再试一次', center: true})
-        clearTimeout()
-      }else{
-        this.disabledStart = false
-        let endtime = (Number(new Date()) - this.atime) / 1000
+      this.waitTime = false
+      if(this.startTime){
+        this.disabled =  !this.disabled
+        let endtime = (Number(new Date()) - this.startTime) / 1000
         this.$alert(
             endtime + 's', '你的反应时间是', {confirmButtonText: '确定', center: true})
         this.bg = '#e6e6e6'
+        this.startTime = NaN
+      }else{
+         this.$alert(
+            '你点早了', 
+            '大熊帝', 
+            {
+              confirmButtonText: '再试一次', 
+              center: true
+            }
+          )
+          this.disabled =  !this.disabled
       }
       
     }
